@@ -318,7 +318,6 @@ func padLeft(s string, width int) string {
 }
 
 func displayWidth(s string) int {
-	// good-enough for ASCII/ANSI; no ANSI in our fixed cols
 	return utf8.RuneCountInString(s)
 }
 
@@ -619,14 +618,4 @@ func ttyWidth() (int, bool) {
 		}
 	}
 	return int(ws.Col), true
-}
-
-func detectTerminalWidth(defaultW int) int {
-	// naive: try COLUMNS env; else default
-	if c := os.Getenv("COLUMNS"); c != "" {
-		if n, err := strconv.Atoi(c); err == nil && n > 20 {
-			return n
-		}
-	}
-	return defaultW
 }
