@@ -38,11 +38,19 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         shell: bash
         run: |
-          subject="$(git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:subject)')"
-          body="$(git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:body)')"
+          tag_ref="refs/tags/${TAG_NAME}"
+          if [[ "$(git cat-file -t "${tag_ref}")" == "tag" ]]; then
+            tag_message="$(git cat-file tag "${tag_ref}")"
+            tag_message="${tag_message#*$'\n\n'}"
+            subject="${tag_message%%$'\n'*}"
+            body="${tag_message#*$'\n'}"
+          else
+            subject="$(git log -1 --format='%s' "${tag_ref}")"
+            body=""
+          fi
           delimiter="tag_message_${GITHUB_RUN_ID}"
           {
-            echo "name=${TAG_NAME} ${subject}"
+            echo "name=${TAG_NAME}: ${subject}"
             echo "body<<${delimiter}"
             printf '%s\n' "${body}"
             echo "${delimiter}"
