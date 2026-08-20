@@ -24,6 +24,24 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
+      - name: Validate release tag
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          tag_ref="refs/tags/${TAG_NAME}"
+          tag_type="$(git cat-file -t "${tag_ref}" 2>/dev/null || true)"
+          if [[ "${tag_type}" != "tag" ]]; then
+            echo "Release tag ${TAG_NAME} is not annotated." >&2
+            exit 1
+          fi
+
+          tag_object="$(git cat-file tag "${tag_ref}")"
+          if ! grep -Eq '(^gpgsig |^-----BEGIN (PGP|SSH) SIGNATURE-----)' <<<"${tag_object}"; then
+            echo "Release tag ${TAG_NAME} is not signed." >&2
+            exit 1
+          fi
+
       - name: Check and build universal binary
         env:
           TAG_NAME: ${{ github.ref_name }}
