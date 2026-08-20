@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -60,5 +61,32 @@ func TestExecutableOccurrencePreservesUnicodeWindow(t *testing.T) {
 	highlighted := highlightInWindow(window, start, occurrence, full, true)
 	if !strings.Contains(highlighted, fgExecutable+"Über"+reset) {
 		t.Fatalf("highlighted window %q does not highlight executable", highlighted)
+	}
+}
+
+func TestPrintTreeUsesContinuationGuides(t *testing.T) {
+	processes := map[int]Proc{
+		1: {PID: 1, PPID: 0, User: "root", Cmd: "launchd"},
+		2: {PID: 2, PPID: 1, User: "alice", Cmd: "first"},
+		3: {PID: 3, PPID: 2, User: "alice", Cmd: "grandchild"},
+		4: {PID: 4, PPID: 1, User: "alice", Cmd: "second"},
+	}
+	children := map[int][]int{0: {1}, 1: {2, 4}, 2: {3}}
+	visible := map[int]struct{}{1: {}, 2: {}, 3: {}, 4: {}}
+	var output bytes.Buffer
+	printTree(&output, children, processes, []int{1}, visible, Args{Wide: true}, nil)
+	if !strings.Contains(output.String(), "│   └── grandchild") {
+		t.Fatalf("tree output lacks continuation guide:\n%s", output.String())
+	}
+}
+
+func TestChooseExecutableOccurrencePrefersBundleExecutable(t *testing.T) {
+	command := "/Applications/Example.app/Contents/MacOS/Example --name Example"
+	name, occurrence := chooseExecutableOccurrence(command, "Example")
+	if name != "Example" || occurrence == nil || command[occurrence[0]:occurrence[1]] != "Example" {
+		t.Fatalf("chooseExecutableOccurrence() = %q, %#v", name, occurrence)
+	}
+	if got := executableAfterBundle(command); got != "Example" {
+		t.Fatalf("executableAfterBundle() = %q", got)
 	}
 }
