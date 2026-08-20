@@ -26,9 +26,13 @@ psfax --user alice
 psfax --sub iterm
 psfax --pid 1234
 psfax --wide
+psfax --version
 ```
 
 Run `psfax --help` for the complete option list.
+
+The version is embedded at build time. Local builds use `dev` by default; set
+it explicitly with `make VERSION=1.2.3 build`.
 
 ## Development
 

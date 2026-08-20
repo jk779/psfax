@@ -25,7 +25,12 @@ jobs:
           check-latest: true
 
       - name: Check and build universal binary
-        run: make GO=go check build
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          VERSION="${TAG_NAME#v}"
+          make GO=go VERSION="${VERSION}" check build
 
       - name: Read tag message
         id: tag-message

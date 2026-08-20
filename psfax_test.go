@@ -19,6 +19,10 @@ func TestParseArgs(t *testing.T) {
 	if _, err := parseArgs([]string{"--user", "alice", "--sub", "shell"}); err == nil {
 		t.Fatal("expected conflicting selector error")
 	}
+	args, err = parseArgs([]string{"--version"})
+	if err != nil || !args.Version {
+		t.Fatalf("parseArgs(--version) = %#v, %v", args, err)
+	}
 }
 
 func TestSplitNKeepsCommandRemainder(t *testing.T) {

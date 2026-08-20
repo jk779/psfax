@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var version = "dev"
+
 func main() {
 	args, err := parseArgs(os.Args[1:])
 	if err != nil {
@@ -16,6 +18,10 @@ func main() {
 	}
 	if args.Help {
 		fmt.Print(usage)
+		return
+	}
+	if args.Version {
+		fmt.Printf("psfax %s\n", version)
 		return
 	}
 

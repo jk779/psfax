@@ -18,15 +18,17 @@ Options:
   -u, --user USER     Show branches containing processes owned by USER.
   -s, --sub TEXT      Show branches whose command contains TEXT.
       --wide          Do not truncate command lines.
+      --version       Show the psfax version.
   -h, --help          Show this help.
 `
 
 type Args struct {
-	PID  int
-	User string
-	Sub  string
-	Wide bool
-	Help bool
+	PID     int
+	User    string
+	Sub     string
+	Wide    bool
+	Version bool
+	Help    bool
 }
 
 func parseArgs(args []string) (Args, error) {
@@ -57,6 +59,8 @@ func parseArgs(args []string) (Args, error) {
 			out.Sub, i = value, next
 		case "--wide":
 			out.Wide = true
+		case "--version":
+			out.Version = true
 		case "-h", "--help":
 			out.Help = true
 		default:
