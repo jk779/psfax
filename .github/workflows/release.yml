@@ -29,13 +29,15 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         shell: bash
         run: |
-          tag_ref="refs/tags/${TAG_NAME}"
-          tag_type="$(git cat-file -t "${tag_ref}" 2>/dev/null || true)"
-          if [[ "${tag_type}" != "tag" ]]; then
+          git fetch --force origin \
+            "refs/tags/${TAG_NAME}:refs/tags/${TAG_NAME}"
+
+          if ! git rev-parse "${TAG_NAME}^{tag}" >/dev/null 2>&1; then
             echo "Release tag ${TAG_NAME} is not annotated." >&2
             exit 1
           fi
 
+          tag_ref="refs/tags/${TAG_NAME}"
           tag_object="$(git cat-file tag "${tag_ref}")"
           if ! grep -Eq '(^gpgsig |^-----BEGIN (PGP|SSH) SIGNATURE-----)' <<<"${tag_object}"; then
             echo "Release tag ${TAG_NAME} is not signed." >&2
@@ -56,27 +58,20 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         shell: bash
         run: |
-          tag_ref="refs/tags/${TAG_NAME}"
-          if [[ "$(git cat-file -t "${tag_ref}")" == "tag" ]]; then
-            tag_message="$(git cat-file tag "${tag_ref}")"
-            tag_message="${tag_message#*$'\n\n'}"
-            subject="${tag_message%%$'\n'*}"
-            body="${tag_message#*$'\n'}"
-          else
-            subject="$(git log -1 --format='%s' "${tag_ref}")"
-            body=""
-          fi
+          subject="$(git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:subject)')"
+          git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:body)' > release-notes.md
           delimiter="tag_message_${GITHUB_RUN_ID}"
           {
             echo "name=${TAG_NAME}: ${subject}"
             echo "body<<${delimiter}"
-            printf '%s\n' "${body}"
+            cat release-notes.md
             echo "${delimiter}"
           } >> "${GITHUB_OUTPUT}"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           name: ${{ steps.tag-message.outputs.name }}
-          body: ${{ steps.tag-message.outputs.body }}
+          body_path: release-notes.md
           files: dist/psfax
