@@ -1,47 +1,48 @@
 # psfax
 
-A **macOS-compatible implementation** of `ps fax`, written in Go.
-It reproduces the familiar **process tree view** from Linux' `procps-ng` but uses BSD's native `/bin/ps` on macOS.
+`psfax` is a small macOS command-line tool that provides a process tree similar to Linux `ps fax`, using macOS's native `/bin/ps` as its data source.
 
----
+It is intentionally macOS-only. The universal release binary supports both Apple Silicon (`arm64`) and Intel (`amd64`) Macs.
 
-## 🧩 Features
+## Features
 
-- Displays a full **process tree** similar to `ps faxu`
-- Highlights **executable** within each command
-- Zero dependencies — single static binary
+- Process tree output with PID, CPU, memory, user, and command columns.
+- Filters for a PID subtree, user, or command substring.
+- Terminal-aware command truncation and optional executable highlighting.
+- No third-party runtime dependencies.
 
----
+## Requirements
 
-## ⚙️ Build
+- macOS.
+- Go 1.27.0 for development and local builds.
+- `asdf` with the version from `.tool-versions`, or an equivalent Go 1.27.0 installation.
+- Xcode Command Line Tools for `lipo` and `strip` when building a universal binary.
 
-Clone and build the universal binary:
+## Usage
+
+```text
+psfax
+psfax --user alice
+psfax --sub iterm
+psfax --pid 1234
+psfax --wide
+```
+
+Run `psfax --help` for the complete option list.
+
+## Development
 
 ```bash
-git clone https://github.com/jk779/psfax.git
-cd psfax
-make
+make check       # format check, tests, and go vet
+make build       # build dist/psfax for the release targets
+make package     # create a versioned universal archive in dist/
+make clean       # remove dist/
 ```
 
-Optionally install it system-wide:
-```
-sudo cp psfax /usr/local/bin/
-```
-----
+The Makefile deliberately keeps generated binaries and archives under `dist/`; they are not committed to the repository.
 
-## 💻 Usage
+## License
 
-```bash
-psfax             # show full process tree
-psfax -u matz     # show only branches containing processes of user 'matz'
-psfax -s iterm    # show branches containing 'iterm' in command line
-psfax -p 1234     # show subtree containing PID 1234
-```
+Copyright (C) 2026 Michael.
 
-Example output:
-```
-  PID  %CPU  %MEM       USER  COMMAND
-    1   0.3   0.0       root   /sbin/launchd
-  355   0.0   0.0       root  ├── /System/Library/CoreServices/...
- 1345   0.0   0.1       matz  ├── /Applications/iTerm.app/Contents/MacOS/iTerm2
- ```
+This project is licensed under the GNU Affero General Public License, version 3.0 or later. See [LICENSE](LICENSE) and the [official license text](https://www.gnu.org/licenses/agpl-3.0.html).

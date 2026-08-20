@@ -1,3 +1,5 @@
+/dist/
+# Legacy local build locations from older Makefile versions.
 /psfax
 /psfax-macos-universal-*
-/build
+/build/
