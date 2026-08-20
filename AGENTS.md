@@ -29,4 +29,4 @@ Keep tests focused on deterministic parsing, filtering, tree selection, and rend
 
 Keep the executable-highlighting heuristics conservative. Changes to command detection should include focused tests for bundle paths, ordinary executable paths, arguments, and Unicode command lines.
 
-Generated files belong in `dist/` and should not be committed.
+Generated binaries belong in `dist/` and should not be committed. Releases publish the universal `dist/psfax` binary directly; do not reintroduce archive packaging unless the release design changes explicitly.

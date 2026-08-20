@@ -35,11 +35,20 @@ Run `psfax --help` for the complete option list.
 ```bash
 make check       # format check, tests, and go vet
 make build       # build dist/psfax for the release targets
-make package     # create a versioned universal archive in dist/
 make clean       # remove dist/
 ```
 
-The Makefile deliberately keeps generated binaries and archives under `dist/`; they are not committed to the repository.
+The Makefile deliberately keeps the generated universal binary under `dist/`; it is not committed to the repository. Releases publish this binary directly without an additional archive.
+
+## Installation
+
+On macOS, install the universal binary from the latest GitHub release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jk779/psfax/main/install.sh | sh
+```
+
+The installer places `psfax` in `$HOME/.local/bin`. Add that directory to `PATH` if it is not already available there.
 
 ## License
 

@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+
+    steps:
+      - name: Check out tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Check and build universal binary
+        run: make GO=go check build
+
+      - name: Read tag message
+        id: tag-message
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          subject="$(git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:subject)')"
+          body="$(git for-each-ref "refs/tags/${TAG_NAME}" --format='%(contents:body)')"
+          delimiter="tag_message_${GITHUB_RUN_ID}"
+          {
+            echo "name=${TAG_NAME} ${subject}"
+            echo "body<<${delimiter}"
+            printf '%s\n' "${body}"
+            echo "${delimiter}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.tag-message.outputs.name }}
+          body: ${{ steps.tag-message.outputs.body }}
+          files: dist/psfax
