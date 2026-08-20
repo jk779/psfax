@@ -11,12 +11,15 @@ It is intentionally macOS-only. The universal release binary supports both Apple
 - Terminal-aware command truncation and optional executable highlighting.
 - No third-party runtime dependencies.
 
-## Requirements
+## Installation
 
-- macOS.
-- Go 1.27.0 for development and local builds.
-- `asdf` with the version from `.tool-versions`, or an equivalent Go 1.27.0 installation.
-- Xcode Command Line Tools for `lipo` and `strip` when building a universal binary.
+On macOS, install the universal binary from the latest GitHub release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jk779/psfax/main/install.sh | sh
+```
+
+The installer places `psfax` in `$HOME/.local/bin`. Add that directory to `PATH` if it is not already available there.
 
 ## Usage
 
@@ -31,9 +34,6 @@ psfax --version
 
 Run `psfax --help` for the complete option list.
 
-The version is embedded at build time. Local builds use `dev` by default; set
-it explicitly with `make VERSION=1.2.3 build`.
-
 ## Development
 
 ```bash
@@ -42,20 +42,8 @@ make build       # build dist/psfax for the release targets
 make clean       # remove dist/
 ```
 
-The Makefile deliberately keeps the generated universal binary under `dist/`; it is not committed to the repository. Releases publish this binary directly without an additional archive.
-
-## Installation
-
-On macOS, install the universal binary from the latest GitHub release:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/jk779/psfax/main/install.sh | sh
-```
-
-The installer places `psfax` in `$HOME/.local/bin`. Add that directory to `PATH` if it is not already available there.
-
 ## License
 
-Copyright (C) 2026 Michael.
+Copyright (C) 2026 jk779.
 
 This project is licensed under the GNU Affero General Public License, version 3.0 or later. See [LICENSE](LICENSE) and the [official license text](https://www.gnu.org/licenses/agpl-3.0.html).
